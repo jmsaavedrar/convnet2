@@ -252,7 +252,8 @@ def parser_tfrecord(serialized_input, input_shape, mean_image, number_of_classes
             #TODO
         
         image = tf.cast(image, tf.float32)
-        image = (image - rgb_mean) / rgb_std
+        #image = (image - rgb_mean) / rgb_std
+        image = image - mean_image
         
         #label
         label = tf.cast(features['label'], tf.int32)
