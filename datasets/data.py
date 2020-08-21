@@ -223,21 +223,21 @@ def create_tfrecords(config, _type, processFun = imgproc.resize_image) :
                 
     
 #parser tf_record to be used for dataset mapping
-def parser_tfrecord(serialized_input, input_shape, mean_image, number_of_classes, mode):
+def parser_tfrecord(serialized_input, input_shape, mean_image, number_of_classes, with_augmentation = False):
         features = tf.io.parse_example([serialized_input],
                                 features={
                                         'image': tf.io.FixedLenFeature([], tf.string),
                                         'label': tf.io.FixedLenFeature([], tf.int64)
                                         })
         #image
-        rgb_mean = [123.68, 116.779, 103.939]
-        rgb_std = [58.393, 57.12, 57.375]                        
+        #rgb_mean = [123.68, 116.779, 103.939]
+        #rgb_std = [58.393, 57.12, 57.375]         
         image = tf.io.decode_raw(features['image'], tf.uint8)
         image = tf.reshape(image, input_shape)
         #data augmentation
         #central crop
         #dataagumentation prob = 0.4
-        if mode == 'train' :
+        if with_augmentation:
             data_augmentation_prob = 0.5
             prob = tf.random.uniform((), 0 ,1)
             if prob < data_augmentation_prob :
@@ -261,3 +261,42 @@ def parser_tfrecord(serialized_input, input_shape, mean_image, number_of_classes
         label = tf.reshape(label, [number_of_classes])
         
         return image, label          
+    
+    
+    #parser tf_record to be used for dataset mapping
+def parser_tfrecord_siamese(serialized_input, input_shape, mean_image,  with_augmentation = False):
+        features = tf.io.parse_example([serialized_input],
+                                features={
+                                        'image': tf.io.FixedLenFeature([], tf.string),
+                                        'label': tf.io.FixedLenFeature([], tf.int64)
+                                        })
+        #image
+        #rgb_mean = [123.68, 116.779, 103.939]
+        #rgb_std = [58.393, 57.12, 57.375]         
+        image = tf.io.decode_raw(features['image'], tf.uint8)
+        image = tf.reshape(image, input_shape)
+        #data augmentation
+        #central crop
+        #dataagumentation prob = 0.4
+        if with_augmentation:
+            data_augmentation_prob = 0.5
+            prob = tf.random.uniform((), 0 ,1)
+            if prob < data_augmentation_prob :
+                #image = tf.image.flip_left_right(image)                
+    #             #fraction = tf.random.uniform((), 0.5, 0.9, dtype = tf.float32)
+                if prob < data_augmentation_prob * 0.5 :
+                    image = tf.image.central_crop(image, central_fraction = 0.7)
+                    image = tf.cast(tf.image.resize(image, (input_shape[0], input_shape[1])), tf.uint8)
+                else :
+                    image = tf.image.flip_left_right(image)                
+                
+            #TODO
+        
+        image = tf.cast(image, tf.float32)
+        #image = (image - rgb_mean) / rgb_std
+        image = image - mean_image
+        
+        #label
+        label = tf.cast(features['label'], tf.int32)                
+        return image, label
+    

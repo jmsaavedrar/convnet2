@@ -8,7 +8,6 @@ class ConfigurationFile:
     def __init__(self, str_config, modelname):
         config = SafeConfigParser({'USE_MULTITHREADS' : 'False',                                    
                                    'IMAGE_SIZE': '1',
-                                   'IMAGE_TYPE': 'IMAGE',
                                    'CKPFILE': 'NONE',
                                    'KEEP_ASPECT_RATIO' : 'True',
                                    'USE_L2' : 'False',
