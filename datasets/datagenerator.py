@@ -33,20 +33,24 @@ class SiameseDataGenerator(tf.keras.utils.Sequence):
         #sk_images and ph_images keeps fix during all the process
         #loading data
         #Let's go with sketch data        
-        mean_file = os.path.join(os.path.join(data_path, 'sketches', 'mean.dat'))
+        #mean_file = os.path.join(os.path.join(data_path, 'sketches', 'mean.dat'))
         shape_file = os.path.join(os.path.join(data_path, 'sketches', 'shape.dat'))        
         self.sk_shape =  np.fromfile(shape_file, dtype=np.int32)        
-        self.sk_mean_image = np.fromfile(mean_file, dtype=np.float32)
-        self.sk_mean_image = np.reshape(self.sk_mean_image, self.sk_shape)
+        #self.sk_mean_image = np.fromfile(mean_file, dtype=np.float32)
+        #self.sk_mean_image = np.reshape(self.sk_mean_image, self.sk_shape)
+        rgb_mean = np.array([123.68 / 58.393, 116.779 / 57.12, 103.939 / 57.375], dtype = np.float32)
+        self.sk_mean_image = rgb_mean;
+        #rgb_std = [58.393, 57.12, 57.375]
         self.sk_images, self.sk_labels = self.__load_data(os.path.join(data_path, 'sketches', datasettype + '.tfrecords'), self.sk_shape, self.sk_mean_image)        
         self.data_size = len(self.sk_images)
         #Let's go with image data        
         #shape example (224,224,3)
-        mean_file = os.path.join(os.path.join(data_path, 'photos', 'mean.dat'))
+        #mean_file = os.path.join(os.path.join(data_path, 'photos', 'mean.dat'))
         shape_file = os.path.join(os.path.join(data_path, 'photos', 'shape.dat'))
         self.ph_shape =  np.fromfile(shape_file, dtype=np.int32)                
-        self.ph_mean_image = np.fromfile(mean_file, dtype=np.float32)
-        self.ph_mean_image = np.reshape(self.ph_mean_image, self.ph_shape)
+        #self.ph_mean_image = np.fromfile(mean_file, dtype=np.float32)
+        #self.ph_mean_image = np.reshape(self.ph_mean_image, self.ph_shape)
+        self.ph_mean_image = rgb_mean
         self.ph_images, self.ph_labels = self.__load_data(os.path.join(data_path, 'photos', datasettype + '.tfrecords'), self.ph_shape, self.ph_mean_image)
         
         self.shape = self.sk_shape  
@@ -84,7 +88,7 @@ class SiameseDataGenerator(tf.keras.utils.Sequence):
         return images, labels    
                                            
     def __len__(self):
-        return int(self.data_size / self.batch_size)
+        return int(self.data_size / self.batch_size) 
     
     def __getitem__(self, index):
         idx = np.arange(index * self.batch_size , min((index + 1) * self.batch_size, self.data_size))                

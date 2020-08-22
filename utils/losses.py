@@ -28,9 +28,9 @@ def constrastive_loss(y_true, y_pred, margin = 20):
     #y_true will be used for training cross_entropy
     e_a, e_p, e_n = tf.split(y_pred, axis = 2, num_or_size_splits = 3)
     d_p = tf.sqrt(tf.square(e_a - e_p))
-    d_p_hard = tf.math.reduce_max(d_p)
+    d_p_hard = tf.math.reduce_mean(d_p)
     d_n = tf.sqrt(tf.square(e_a - e_n))
-    d_n_hard = tf.math.reduce_min(d_n)
+    d_n_hard = tf.math.reduce_mean(d_n)
     #hardest negative and hardest positive
-    return tf.maximum(0.0, d_p_hard + margin - d_n_hard)
+    return tf.maximum(1e-10, d_p_hard + margin - d_n_hard)
     

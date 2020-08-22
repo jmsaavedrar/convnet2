@@ -1,11 +1,12 @@
 import sys
-sys.path.append("/home/jsaavedr/Research/git/tensorflow-2/covnet2")
+sys.path.append("/home/jsaavedr/Research/git/tensorflow-2/convnet2")
 import tensorflow as tf
 from models import resnet
 import datasets.data as data
 import datasets.datagenerator as datagenerator
 import utils.configuration as conf
 import utils.losses as losses
+import utils.metrics as metrics
 import numpy as np
 import argparse
 import os
@@ -57,7 +58,8 @@ if __name__ == '__main__' :
     model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate = configuration.get_learning_rate()), # 'adam'     
               #loss=tf.keras.losses.CategoricalCrossentropy(from_logits=True),
               #loss= lambda y_true, y_pred : losses.crossentropy_l2_loss(y_true, y_pred, model, configuration.get_weight_decay()),
-              loss= lambda y_true, y_pred : losses.constrastive_loss(y_true, y_pred, 30))
+              loss= lambda y_true, y_pred : losses.constrastive_loss(y_true, y_pred, 0.5),
+              metrics = [metrics.d_positive, metrics.d_negative] )
               #metrics=['accuracy'])
      
          
