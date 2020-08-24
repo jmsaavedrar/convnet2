@@ -272,19 +272,19 @@ class SiameseNet(tf.keras.Model):
         f_sketch = self.avg_pool(f_sketch)
         f_sketch = tf.keras.layers.Flatten()(tf.keras.activations.relu(f_sketch))
         f_sketch = self.fc2(tf.keras.activations.relu(self.bn1(self.fc1(f_sketch), training)))
-        f_sketch = f_sketch / tf.norm(f_sketch)
+        f_sketch = f_sketch / (tf.norm(f_sketch) + 1.0e-10)
         
         f_positive = self.ph_backbone(x_p, training)
         f_positive = self.avg_pool(f_positive)
         f_positive = tf.keras.layers.Flatten()(tf.keras.activations.relu(f_positive))
         f_positive = self.fc2(tf.keras.activations.relu(self.bn1(self.fc1(f_positive), training)))
-        f_positive = f_sketch / tf.norm(f_positive)
+        f_positive = f_sketch / (tf.norm(f_positive) + 1.0e-10)
                             
         f_negative = self.ph_backbone(x_n, training)        
         f_negative = self.avg_pool(f_negative)
         f_negative = tf.keras.layers.Flatten()(tf.keras.activations.relu(f_negative))
         f_negative = self.fc2(tf.keras.activations.relu(self.bn1(self.fc1(f_negative), training)))
-        f_negative = f_negative / tf.norm(f_negative)        
+        f_negative = f_negative / (tf.norm(f_negative) + 1.0e-10)        
         
         
         f_sketch = tf.expand_dims(f_sketch, -1)

@@ -58,7 +58,7 @@ if __name__ == '__main__' :
     model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate = configuration.get_learning_rate()), # 'adam'     
               #loss=tf.keras.losses.CategoricalCrossentropy(from_logits=True),
               #loss= lambda y_true, y_pred : losses.crossentropy_l2_loss(y_true, y_pred, model, configuration.get_weight_decay()),
-              loss= lambda y_true, y_pred : losses.constrastive_loss(y_true, y_pred, 0.5),
+              loss= lambda y_true, y_pred : losses.constrastive_loss(y_true, y_pred, 1.0),
               metrics = [metrics.d_positive, metrics.d_negative] )
               #metrics=['accuracy'])
      
