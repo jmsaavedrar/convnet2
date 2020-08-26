@@ -267,7 +267,10 @@ class SiameseNet(tf.keras.Model):
         
     def call(self, inputs, training):
         #split net into anchor, positive and negative
-        x_a , x_p, x_n =  tf.split(inputs, axis = 3, num_or_size_splits = 3)        
+        #x_a , x_p, x_n =  tf.split(inputs, axis = 3, num_or_size_splits = 3)
+        x_a= inputs[0]
+        x_p= inputs[1]
+        x_n= inputs[2]
         f_sketch = self.sk_backbone(x_a, training)
         f_sketch = self.avg_pool(f_sketch)
         f_sketch = tf.keras.layers.Flatten()(tf.keras.activations.relu(f_sketch))
@@ -278,7 +281,7 @@ class SiameseNet(tf.keras.Model):
         f_positive = self.avg_pool(f_positive)
         f_positive = tf.keras.layers.Flatten()(tf.keras.activations.relu(f_positive))
         f_positive = self.fc2(tf.keras.activations.relu(self.bn1(self.fc1(f_positive), training)))
-        f_positive = f_sketch / (tf.norm(f_positive) + 1.0e-10)
+        f_positive = f_positive / (tf.norm(f_positive) + 1.0e-10)
                             
         f_negative = self.ph_backbone(x_n, training)        
         f_negative = self.avg_pool(f_negative)
@@ -286,14 +289,14 @@ class SiameseNet(tf.keras.Model):
         f_negative = self.fc2(tf.keras.activations.relu(self.bn1(self.fc1(f_negative), training)))
         f_negative = f_negative / (tf.norm(f_negative) + 1.0e-10)        
         
-        
+        #f_sketch, f_negative, f_positive
         f_sketch = tf.expand_dims(f_sketch, -1)
         f_positive = tf.expand_dims(f_positive, -1)
         f_negative = tf.expand_dims(f_negative, -1)
-        #concatenate embeddings
+        #concanenate
         embeddings = tf.concat([f_sketch, f_positive, f_negative], axis = 2)
-
-        return embeddings 
+        #for classification, it is possible to return classification as embeddings, classification
+        return  embeddings
     
         
 """

@@ -100,16 +100,22 @@ class SiameseDataGenerator(tf.keras.utils.Sequence):
         self.__make_pairs()                 
            
     def __get_batch(self, idxs):
-        X = np.empty((len(idxs), self.shape[0], self.shape[1], self.shape[2]*3), dtype = np.float32)                
-        y = np.empty((len(idxs),3), dtype = np.int32)        
+        X_a = np.empty((len(idxs), self.shape[0], self.shape[1], self.shape[2]), dtype = np.float32)                
+        X_p = np.empty((len(idxs), self.shape[0], self.shape[1], self.shape[2]), dtype = np.float32)
+        X_n = np.empty((len(idxs), self.shape[0], self.shape[1], self.shape[2]), dtype = np.float32)        
+        y = np.empty((len(idxs),3), dtype = np.int32)      
         for i, idx in enumerate(idxs) :
-            X[i, :, :, 0:self.shape[2]] = self.sk_images[self.sk_idx[idx]]
-            X[i, :, :, self.shape[2]*1 :self.shape[2]*2] = self.ph_images[self.idx_positives[idx]]
-            X[i, :, :, self.shape[2]*2 :self.shape[2]*3] = self.ph_images[self.idx_negatives[idx]]            
+            X_a[i,] = self.sk_images[self.sk_idx[idx]]
+            X_p[i,] = self.ph_images[self.idx_positives[idx]]
+            X_n[i,] = self.ph_images[self.idx_negatives[idx]]
+#             X[i, :, :, 0:self.shape[2]] = self.sk_images[self.sk_idx[idx]]
+#             X[i, :, :, self.shape[2]*1 :self.shape[2]*2] = self.ph_images[self.idx_positives[idx]]
+#             X[i, :, :, self.shape[2]*2 :self.shape[2]*3] = self.ph_images[self.idx_negatives[idx]]            
             y[i,0] = self.sk_labels[self.sk_idx[idx]]
             y[i,1] = self.ph_labels[self.idx_positives[idx]]
-            y[i,2] = self.ph_labels[self.idx_negatives[idx]]
-        return X, y
+            y[i,2] = self.ph_labels[self.idx_negatives[idx]]                        
+            
+        return [X_a, X_p, X_n], y
         
     def __make_pairs(self):
         """        
@@ -152,7 +158,10 @@ if __name__ == '__main__'   :
             epoch = epoch + 1
             print(epoch)     
         x, y = data.__getitem__(ii)
-        x_a, x_p, x_n = np.split(x, 3, axis = 3)
+        #x_a, x_p, x_n = np.split(x, 3, axis = 3)
+        x_a = x[0]
+        x_p = x[1]
+        x_n = x[2]
         for i, aa in enumerate(x_a) :            
             xs[0].imshow(x_a[i])
             xs[0].set_axis_off()

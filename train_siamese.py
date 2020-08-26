@@ -16,7 +16,9 @@ if __name__ == '__main__' :
     parser.add_argument("-config", type = str, help = "<str> configuration file", required = True)
     parser.add_argument("-name", type=str, help=" name of section in the configuration file", required = True)
     parser.add_argument("-gpu", type=str, help=" choose gpu device", required = False)
-    pargs = parser.parse_args() 
+    parser.add_argument("-mode", type=str, choices=['train', 'test', 'variables'],  help=" train or test", required = False, default = 'train')
+    parser.add_argument("-save", type= bool,  help=" True to save the model", required = False, default = False)
+    pargs = parser.parse_args()  
     id_gpu = '0'
     if  pargs.gpu is not None :
         id_gpu = pargs.gpu
@@ -28,7 +30,8 @@ if __name__ == '__main__' :
     #(self, data_path, batch_size,  num_classes, shuffle = True ):
     shape_file = os.path.join(configuration.get_data_dir(),'sketches', 'shape.dat')    
     input_shape =  np.fromfile(shape_file, dtype=np.int32)
-    tra_dataset = datagenerator.SiameseDataGenerator(configuration.get_data_dir(), configuration.get_batch_size(),  number_of_classes, datasettype = 'train')
+    if pargs.mode == 'train' :
+        tra_dataset = datagenerator.SiameseDataGenerator(configuration.get_data_dir(), configuration.get_batch_size(),  number_of_classes, datasettype = 'train')
     val_dataset = datagenerator.SiameseDataGenerator(configuration.get_data_dir(), configuration.get_batch_size(),  number_of_classes, datasettype = 'test')
     #tr_dataset = tr_dataset.repeat()               
     
@@ -38,15 +41,19 @@ if __name__ == '__main__' :
         save_weights_only=True,
         mode='max',
         save_best_only=False)
+    
+    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=configuration.get_snapshot_dir(), histogram_freq=1)
         #save_freq = configuration.get_snapshot_steps())
     #DigitModel is instantiated
     #model = DigitModel()
     #resnet 34
     model = resnet.SiameseNet([3,4,6,3],[64,128,256,512], configuration.get_number_of_classes(), se_factor = 0)
     #resnet_50
-    #model = resnet.ResNet([3,4,6,3],[64,128,256,512], configuration.get_number_of_classes(), use_bottleneck = True)
-    #build the model indicating the input shape
-    model.build((1, input_shape[0], input_shape[1], input_shape[2]*3))
+    #model = resnet.ResNet([3,4,6,3],[64,128,256,512], configuration.get_number_of_classes(), use_bottleneck = True)    
+    input_sketch = tf.keras.Input((input_shape[0], input_shape[1], input_shape[2]))
+    input_positive = tf.keras.Input((input_shape[0], input_shape[1], input_shape[2])) 
+    input_negative = tf.keras.Input((input_shape[0], input_shape[1], input_shape[2]))    
+    model([input_sketch, input_positive, input_negative])    
     model.summary()
     
     #model.save_weights(os.path.join(configuration.get_snapshot_dir(),'chk_sample'), save_format='h5')
@@ -56,19 +63,27 @@ if __name__ == '__main__' :
     #define the training parameters
     #Here, you can test SGD vs Adam
     model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate = configuration.get_learning_rate()), # 'adam'     
-              #loss=tf.keras.losses.CategoricalCrossentropy(from_logits=True),
-              #loss= lambda y_true, y_pred : losses.crossentropy_l2_loss(y_true, y_pred, model, configuration.get_weight_decay()),
-              loss= lambda y_true, y_pred : losses.constrastive_loss(y_true, y_pred, 1.0),
-              metrics = [metrics.d_positive, metrics.d_negative] )
-              #metrics=['accuracy'])
-     
-         
-    history = model.fit(tra_dataset, 
-                        epochs = configuration.get_number_of_epochs(),                        
-                        validation_data=val_dataset,
-                        validation_steps = configuration.get_validation_steps(),
-                        callbacks=[model_checkpoint_callback])
+                  #loss=tf.keras.losses.CategoricalCrossentropy(from_logits=True),
+                  #loss= lambda y_true, y_pred : losses.crossentropy_l2_loss(y_true, y_pred, model, configuration.get_weight_decay()),
+                  loss= lambda y_true, y_pred : losses.constrastive_loss(y_true, y_pred, 1.0),
+                  metrics = [metrics.d_positive, metrics.d_negative])
+                #metrics=['accuracy'])
+    if pargs.mode == 'train' :                             
+        history = model.fit(tra_dataset, 
+                            epochs = configuration.get_number_of_epochs(),                        
+                            validation_data=val_dataset,
+                            validation_steps = configuration.get_validation_steps(),
+                            callbacks=[model_checkpoint_callback, tensorboard_callback])
+    elif pargs.mode == 'test' :
+        model.evaluate(val_dataset,
+                       steps = configuration.get_validation_steps(),
+                       callbacks=[tensorboard_callback])
+    elif pargs.mode == 'variables' :        
+        for variable in model.layers:
+            print(variable.name)
+            
          
                          
-    #save the model              
-    model.save(os.path.join(configuration.get_data_dir(),"saved-model"))
+    #save the model
+    if pargs.save :
+        model.save(os.path.join(configuration.get_data_dir(),"saved-model"))
