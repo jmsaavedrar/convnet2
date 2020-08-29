@@ -7,12 +7,12 @@
 import tensorflow as tf
 import sys
 sys.path.append("/home/jsaavedr/Research/git/tensorflow-2/convnet2")
-import datasets.datagenerator as datagenerator
 
 
 
 
 # a conv 3x3
+
 def conv3x3(channels, stride = 1, **kwargs):
     return tf.keras.layers.Conv2D(channels, (3,3), 
                                   strides = stride, 
@@ -29,19 +29,20 @@ def conv1x1(channels, stride = 1, **kwargs):
                                   **kwargs)
 
 
-class SEBlock(tf.keras.Model):
+class SEBlock(tf.keras.layers.Layer):
     """
     Squeeze and Excitation Block
     r_channels is the number of reduced channels
     """
+    
     def __init__(self, channels, r_channels, **kwargs):
         super(SEBlock, self).__init__(**kwargs)
         self.channels = channels
         self.gap  = tf.keras.layers.GlobalAveragePooling2D(name = 'se_gap')
         self.fc_1 = tf.keras.layers.Dense(r_channels, name = 'se_fc1' )
         self.bn_1 = tf.keras.layers.BatchNormalization(name = 'se_bn1')        
-        self.fc_2 = tf.keras.layers.Dense(channels, name = 'se_fc2')        
-                
+        self.fc_2 = tf.keras.layers.Dense(channels, name = 'se_fc2')    
+            
     def call(self, inputs, training = True):       
         y = self.gap(inputs)
         y = tf.keras.activations.relu(self.bn_1(self.fc_1(y), training))
@@ -51,14 +52,15 @@ class SEBlock(tf.keras.Model):
         return y        
         
 
-class ResidualBlock(tf.keras.Model):
+class ResidualBlock(tf.keras.layers.Layer):
     """
     residual block implementated in a full preactivation mode
     input bn-relu-conv1-bn-relu-conv2->y-------------------
       |                                                    |+
       ------------------(projection if necessary)-->shortcut--> y + shortcut
         
-    """ 
+    """
+    
     def __init__(self, filters, stride, use_projection = False, se_factor = 0,  **kwargs):        
         super(ResidualBlock, self).__init__(**kwargs)
         self.bn_0 = tf.keras.layers.BatchNormalization(name = 'bn_0')
@@ -76,7 +78,7 @@ class ResidualBlock(tf.keras.Model):
             self.se = SEBlock(filters, filters / se_factor)
             self.use_se_block = True
         
-    #using full pre-activation mode    
+    #using full pre-activation mode
     def call(self, inputs, training = True):
         y = self.bn_0(inputs)
         y = tf.keras.activations.relu(y)
@@ -94,11 +96,12 @@ class ResidualBlock(tf.keras.Model):
         return y
 
 
-class BottleneckBlock(tf.keras.Model):
+class BottleneckBlock(tf.keras.layers.Layer):
     """
     BottleneckBlock
     expansion rate = x4
     """
+    
     def __init__(self, filters, stride, use_projection = False, se_factor = 0, **kwargs):        
         super(BottleneckBlock, self).__init__(**kwargs)
         self.bn_0 = tf.keras.layers.BatchNormalization(name = 'bn_0')
@@ -118,7 +121,7 @@ class BottleneckBlock(tf.keras.Model):
             self.se = SEBlock(filters, filters / se_factor)
             self.use_se_block = True
         
-    #using full pre-activation mode     
+    #using full pre-activation mode
     def call(self, inputs, training = True):
         #full-preactivation
         y = self.bn_0(inputs, training)
@@ -139,13 +142,14 @@ class BottleneckBlock(tf.keras.Model):
         y = shortcut + y # residual function        
         return y
 
-class ResNetBlock(tf.keras.Model):
+class ResNetBlock(tf.keras.layers.Layer):
     """
     resnet block implementation
     A resnet block contains a set of residual blocks
     Commonly, the residual block of a resnet block starts with a stride = 2, except for the first block
     The number of blocks together with the number of filters used in each block  are defined in __init__    
     """
+    
     def __init__(self, filters,  block_size, with_reduction = False, use_bottleneck = False, se_factor = 0, **kwargs):
         super(ResNetBlock, self).__init__(**kwargs)        
         self.filters = filters    
@@ -163,7 +167,7 @@ class ResNetBlock(tf.keras.Model):
         self.block_collector = [residual_block(filters = filters, stride = stride_0, use_projection = use_projection_at_first, se_factor = se_factor, name = 'rblock_0')]        
         for idx_block in range(1, block_size) :
             self.block_collector.append(residual_block(filters = filters, stride = 1, se_factor = se_factor, name = 'rblock_{}'.format(idx_block)))
-                
+                    
     def call(self, inputs, training):
         x = inputs;
         for block in self.block_collector :
@@ -172,6 +176,7 @@ class ResNetBlock(tf.keras.Model):
 
 
 class ResNetBackbone(tf.keras.Model):
+    
     def __init__(self, block_sizes, filters, use_bottleneck = False, se_factor = 0, **kwargs) :
         super(ResNetBackbone, self).__init__(**kwargs)
         self.conv_0 = tf.keras.layers.Conv2D(64, (7,7), strides = 2, padding = 'same', 
@@ -192,7 +197,8 @@ class ResNetBackbone(tf.keras.Model):
                                                   se_factor = se_factor,
                                                   name = 'block_{}'.format(idx_block)))
             self.bn_last= tf.keras.layers.BatchNormalization(name = 'bn_last')
-    
+            
+        
     def call(self, inputs, training):
         x = inputs
         x = self.conv_0(x)
@@ -214,6 +220,7 @@ class ResNet(tf.keras.Model):
     use_bottleneck: Is's true when bottlenect blocks are used.
     se_factor : reduction factor in  SE module, 0 if SE is not used
     """        
+    
     def __init__(self, block_sizes, filters, number_of_classes, use_bottleneck = False, se_factor = 0, **kwargs) :
         super(ResNet, self).__init__(**kwargs)
         self.conv_0 = tf.keras.layers.Conv2D(64, (7,7), strides = 2, padding = 'same', 
@@ -234,7 +241,7 @@ class ResNet(tf.keras.Model):
                                                   se_factor = se_factor,
                                                   name = 'block_{}'.format(idx_block)))
         self.bn_last= tf.keras.layers.BatchNormalization(name = 'bn_last')                            
-        self.avg_pool = tf.keras.layers.AveragePooling2D()
+        self.avg_pool = tf.keras.layers.GlobalAveragePooling2D()
         #self.fn = tf.keras.layers.Dense(1024)
         #self.bn_fn= tf.keras.layers.BatchNormalization()        
         self.classifier = tf.keras.layers.Dense(number_of_classes)
@@ -254,17 +261,18 @@ class ResNet(tf.keras.Model):
 
 
 class SiameseNet(tf.keras.Model):
+    
     def __init__(self, block_sizes, filters,  use_bottleneck = False, se_factor = 0, **kwargs) :
         super(SiameseNet, self).__init__(**kwargs)
         #the following backbones does not share  weights 
         self.sk_backbone = ResNetBackbone(block_sizes, filters, use_bottleneck, se_factor, name = 'sk_backbone')
         self.ph_backbone = ResNetBackbone(block_sizes, filters, use_bottleneck, se_factor, name = 'ph_backbone')
         #next are shared block
-        self.avg_pool = tf.keras.layers.AveragePooling2D()            
-        self.fc1 = tf.keras.layers.Dense(512)
+        self.avg_pool = tf.keras.layers.GlobalAveragePooling2D()            
+        self.fc1 = tf.keras.layers.Dense(512, name = 'fc_1')
         self.bn1 = tf.keras.layers.BatchNormalization(name = 'bn_1') 
-        self.fc2 = tf.keras.layers.Dense(512)
-        
+        self.fc2 = tf.keras.layers.Dense(512, name = 'fc_2')
+     
     def call(self, inputs, training):
         #split net into anchor, positive and negative
         #x_a , x_p, x_n =  tf.split(inputs, axis = 3, num_or_size_splits = 3)
@@ -273,32 +281,73 @@ class SiameseNet(tf.keras.Model):
         x_n= inputs[2]
         f_sketch = self.sk_backbone(x_a, training)
         f_sketch = self.avg_pool(f_sketch)
-        f_sketch = tf.keras.layers.Flatten()(tf.keras.activations.relu(f_sketch))
+        f_sketch = tf.keras.layers.Flatten()(f_sketch)
         f_sketch = self.fc2(tf.keras.activations.relu(self.bn1(self.fc1(f_sketch), training)))
-        f_sketch = f_sketch / (tf.norm(f_sketch) + 1.0e-10)
+        f_sketch = tf.truediv(f_sketch, (tf.norm(f_sketch) + 1.0e-10))
         
         f_positive = self.ph_backbone(x_p, training)
         f_positive = self.avg_pool(f_positive)
-        f_positive = tf.keras.layers.Flatten()(tf.keras.activations.relu(f_positive))
+        f_positive = tf.keras.layers.Flatten()(f_positive)
         f_positive = self.fc2(tf.keras.activations.relu(self.bn1(self.fc1(f_positive), training)))
-        f_positive = f_positive / (tf.norm(f_positive) + 1.0e-10)
+        f_positive = tf.truediv(f_positive, (tf.norm(f_positive) + 1.0e-10), name = 'emb_image')
                             
         f_negative = self.ph_backbone(x_n, training)        
         f_negative = self.avg_pool(f_negative)
-        f_negative = tf.keras.layers.Flatten()(tf.keras.activations.relu(f_negative))
+        f_negative = tf.keras.layers.Flatten()(f_negative)
         f_negative = self.fc2(tf.keras.activations.relu(self.bn1(self.fc1(f_negative), training)))
-        f_negative = f_negative / (tf.norm(f_negative) + 1.0e-10)        
+        f_negative = tf.truediv(f_negative , (tf.norm(f_negative) + 1.0e-10), name = 'emb_image')        
         
-        #f_sketch, f_negative, f_positive
-        f_sketch = tf.expand_dims(f_sketch, -1)
-        f_positive = tf.expand_dims(f_positive, -1)
-        f_negative = tf.expand_dims(f_negative, -1)
+        #f_sketch, f_negative, f_positive, 
+        #axis 1 for keeping all features together
+        f_sketch = tf.expand_dims(f_sketch, 1)
+        f_positive = tf.expand_dims(f_positive, 1)
+        f_negative = tf.expand_dims(f_negative, 1)        
         #concanenate
-        embeddings = tf.concat([f_sketch, f_positive, f_negative], axis = 2)
+        embeddings = tf.concat([f_sketch, f_positive, f_negative], axis = 1)
         #for classification, it is possible to return classification as embeddings, classification
         return  embeddings
+
+
+class SiameseNetImage(tf.keras.Model):
     
-        
+    def __init__(self, block_sizes, filters,  use_bottleneck = False, se_factor = 0, **kwargs) :
+        super(SiameseNetImage, self).__init__(**kwargs)        
+        self.ph_backbone = ResNetBackbone(block_sizes, filters, use_bottleneck, se_factor, name = 'ph_backbone')
+        #next are shared block
+        self.avg_pool = tf.keras.layers.GlobalAveragePooling2D()            
+        self.fc1 = tf.keras.layers.Dense(512, name = 'fc_1')
+        self.bn1 = tf.keras.layers.BatchNormalization(name = 'bn_1') 
+        self.fc2 = tf.keras.layers.Dense(512, name = 'fc_2')
+     
+    def call(self, inputs, training):        
+        f_positive = self.ph_backbone(inputs, training)
+        f_positive = self.avg_pool(f_positive)
+        f_positive = tf.keras.layers.Flatten()(f_positive)
+        f_positive = self.fc2(tf.keras.activations.relu(self.bn1(self.fc1(f_positive), training)))
+        f_positive = tf.truediv(f_positive, (tf.norm(f_positive) + 1.0e-10), name = 'emb_image')
+                                    
+        return f_positive    
+
+class SiameseNetSketch(tf.keras.Model):
+    
+    def __init__(self, block_sizes, filters,  use_bottleneck = False, se_factor = 0, **kwargs) :
+        super(SiameseNetSketch, self).__init__(**kwargs)        
+        self.sk_backbone = ResNetBackbone(block_sizes, filters, use_bottleneck, se_factor, name = 'sk_backbone')
+        #next are shared block
+        self.avg_pool = tf.keras.layers.GlobalAveragePooling2D()            
+        self.fc1 = tf.keras.layers.Dense(512, name = 'fc_1')
+        self.bn1 = tf.keras.layers.BatchNormalization(name = 'bn_1') 
+        self.fc2 = tf.keras.layers.Dense(512, name = 'fc_2')                
+     
+    def call(self, inputs, training):        
+        f_sketch = self.sk_backbone(inputs, training)
+        f_sketch = self.avg_pool(f_sketch)
+        f_sketch = tf.keras.layers.Flatten()(f_sketch)
+        f_sketch = self.fc2(tf.keras.activations.relu(self.bn1(self.fc1(f_sketch), training)))
+        f_sketch = tf.truediv(f_sketch, (tf.norm(f_sketch) + 1.0e-10), name = 'emb_sketch')
+                                    
+        return f_sketch        
+    
 """
 A unit test
 """    
@@ -312,11 +361,17 @@ if __name__ == '__main__' :
     #sess = tf.Session()
     #print(sess.run(c))
     #model = ResNet(block_sizes=[3,4,6,3], filters = [16, 128, 256, 512], number_of_classes = 10)
+    input_sketch = tf.keras.Input((224,224,3), name = 'input_sketch')
+    input_positive = tf.keras.Input((224,224,3), name = 'input_image') 
+    input_negative = tf.keras.Input((224,224,3), name = 'input_image')
     model = SiameseNet([3,4,6,3],[64,128,256,512], 250)    
-    model.build((10, 224,224,9))
-    for v in model.trainable_variables :
-        print('{} {}'.format(v.name, v.shape))
-    model.summary()    
+    model([input_sketch, input_positive, input_negative])
+    model.summary()
+    
+        #print('{} {}'.format(v.name, v.shape))
+        
     #model.save('the-model.pb', save_format='tf')
     #model.save("the-model")
+#         
+#     
     
