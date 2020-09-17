@@ -242,7 +242,7 @@ def parser_tfrecord(serialized_input, input_shape, mean_image, number_of_classes
             prob = tf.random.uniform((), 0 ,1)
             if prob < data_augmentation_prob :
                 #image = tf.image.flip_left_right(image)                
-    #             #fraction = tf.random.uniform((), 0.5, 0.9, dtype = tf.float32)
+                #fraction = tf.random.uniform((), 0.5, 0.9, dtype = tf.float32)
                 if prob < data_augmentation_prob * 0.5 :
                     image = tf.image.central_crop(image, central_fraction = 0.7)
                     image = tf.cast(tf.image.resize(image, (input_shape[0], input_shape[1])), tf.uint8)

@@ -71,8 +71,10 @@ def read_data_from_file(filename, mapping_file = None):
         filenames, labels = zip(*lines_)
         if mapping_file is None :
             labels, mapping = validate_labels(labels)
+            print(mapping)
             if bool(mapping) :            
-                mapping_file = os.path.join(os.path.dirname(filename), "mapping.txt")            
+                mapping_file = os.path.join(os.path.dirname(filename), "mapping.txt")
+                print('save mapping at {}'.format(mapping_file))            
                 save_mapping(mapping, mapping_file)
                 
         else :

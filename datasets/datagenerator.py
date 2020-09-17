@@ -81,6 +81,7 @@ class SiameseDataGenerator(tf.keras.utils.Sequence):
         labels = np.empty(dataset_size, dtype = np.int32) 
         print('Loading {} images'.format(dataset_size))
         sys.stdout.flush()
+        #todo parallel
         for i, record in enumerate(raw_dataset):
             im, lbl = data.parser_tfrecord_siamese(record, shape, mean_file)            
             images[i, ] = im
@@ -96,26 +97,23 @@ class SiameseDataGenerator(tf.keras.utils.Sequence):
         return X, y
     
     def on_epoch_end(self):
-        print('epoch')
         self.__make_pairs()                 
            
     def __get_batch(self, idxs):
         X_a = np.empty((len(idxs), self.shape[0], self.shape[1], self.shape[2]), dtype = np.float32)                
         X_p = np.empty((len(idxs), self.shape[0], self.shape[1], self.shape[2]), dtype = np.float32)
         X_n = np.empty((len(idxs), self.shape[0], self.shape[1], self.shape[2]), dtype = np.float32)        
-        y = np.empty((len(idxs),3), dtype = np.int32)      
-        for i, idx in enumerate(idxs) :
-            X_a[i,] = self.sk_images[self.sk_idx[idx]]
+        y = np.zeros((len(idxs), 3, self.num_classes), dtype = np.float32)
+        y_emb = np.zeros(len(idxs), dtype = np.float32)
+        for i, idx in enumerate(idxs) :            
+            X_a[i,] = self.sk_images[self.sk_idx[idx]]            
             X_p[i,] = self.ph_images[self.idx_positives[idx]]
             X_n[i,] = self.ph_images[self.idx_negatives[idx]]
-#             X[i, :, :, 0:self.shape[2]] = self.sk_images[self.sk_idx[idx]]
-#             X[i, :, :, self.shape[2]*1 :self.shape[2]*2] = self.ph_images[self.idx_positives[idx]]
-#             X[i, :, :, self.shape[2]*2 :self.shape[2]*3] = self.ph_images[self.idx_negatives[idx]]            
-            y[i,0] = self.sk_labels[self.sk_idx[idx]]
-            y[i,1] = self.ph_labels[self.idx_positives[idx]]
-            y[i,2] = self.ph_labels[self.idx_negatives[idx]]                        
+            y[i,0,self.sk_labels[self.sk_idx[idx]]] = 1.0
+            y[i,1,self.ph_labels[self.idx_positives[idx]]] = 1.0
+            y[i,2,self.ph_labels[self.idx_negatives[idx]]] = 1.0
             
-        return [X_a, X_p, X_n], y
+        return [X_a, X_p, X_n], [y_emb, y]
         
     def __make_pairs(self):
         """        

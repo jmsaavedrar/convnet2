@@ -12,7 +12,10 @@ class ConfigurationFile:
                                    'KEEP_ASPECT_RATIO' : 'True',
                                    'USE_L2' : 'False',
                                    'WEIGHT_DECAY' : '0.0',
-                                   'SHUFFLE_SIZE' : '1000'
+                                   'SHUFFLE_SIZE' : '1000',
+                                   'CKPFILE_SKETCH' : 'NONE',
+                                   'CKPFILE_PHOTO' : 'NONE',
+                                   'DECAY_STEPS'   : 0 
                                    })
         config.read(str_config)
         self.sections = config.sections()                
@@ -26,7 +29,6 @@ class ConfigurationFile:
                 self.number_of_classes = config.getint(modelname,"NUM_CLASSES")
                 self.number_of_epochs= config.getint(modelname,"NUM_EPOCHS")                                
                 self.batch_size = config.getint(modelname, "BATCH_SIZE")
-                self.snapshot_steps = config.getint(modelname, "SNAPSHOT_STEPS")
                 #test time sets when test is run (in seconds)
                 self.validation_steps = config.getint(modelname, "VALIDATION_STEPS")
                 self.lr = config.getfloat(modelname, "LEARNING_RATE")
@@ -40,17 +42,20 @@ class ConfigurationFile:
                 self.image_height = config.getint(modelname, "IMAGE_HEIGHT")                
                 self.image_type = config.get(modelname, "IMAGE_TYPE").upper()
                 self.checkpoint_file = config.get(modelname, "CKPFILE")
+                self.checkpoint_file_sketch = config.get(modelname, "CKPFILE_SKETCH")
+                self.checkpoint_file_photo = config.get(modelname, "CKPFILE_PHOTO")
                 self.use_l2 = config.getboolean(modelname, "USE_L2")
                 self.shuffle_size = config.getint(modelname, "SHUFFLE_SIZE")
+                self.decay_steps = config.getint(modelname, "DECAY_STEPS")
                 self.weight_decay = 0.0
                 if self.use_l2 :
                     self.weight_decay = config.getfloat(modelname, 'WEIGHT_DECAY')
-                self.is_multithreads = config.getboolean(modelname, "USE_MULTITHREADS")
+                self.is_multithreads = config.getboolean(modelname, "USE_MULTITHREADS")                
                 self.num_threads = 1
                 if self.is_multithreads :
                     self.num_threads = config.getint(modelname, "NUM_THREADS")
                 assert(self.channels == 1 or self.channels == 3)                
-                assert(self.num_threads > 0)
+                assert(self.num_threads > 0)                
             except Exception:
                 raise ValueError("something wrong with configuration file " + str_config)
         else:
@@ -70,9 +75,6 @@ class ConfigurationFile:
     
     def get_batch_size(self):
         return self.batch_size
-   
-    def get_snapshot_steps(self):
-        return self.snapshot_steps
     
     def get_snapshot_dir(self):
         return self.snapshot_prefix
@@ -122,8 +124,20 @@ class ConfigurationFile:
             use_ckp = True
         return use_ckp
     
+    def use_checkpoint_for_photo(self):
+        return (self.checkpoint_file_photo != "NONE")
+    
+    def use_checkpoint_for_sketch(self):
+        return (self.checkpoint_file_sketch != "NONE")
+    
     def get_checkpoint_file(self):
         return self.checkpoint_file
+    
+    def get_checkpoint_file_photo(self):
+        return self.checkpoint_file_photo
+    
+    def get_checkpoint_file_sketch(self):
+        return self.checkpoint_file_sketch
     
     def use_l2_regularization(self):
         return self.use_l2
@@ -133,6 +147,9 @@ class ConfigurationFile:
     
     def get_shuffle_size(self):
         return self.shuffle_size
+    
+    def get_decay_steps(self):
+        return self.decay_steps
     
     def show(self):
         print("NUM_EPOCHS: {}".format(self.get_number_of_epochs()))        
