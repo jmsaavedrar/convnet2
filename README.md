@@ -1,6 +1,7 @@
 # convnet2
 cnn based on tensorflow 2.3
-
+# Using Checkpoints
+You can use a checkpoint to initialize the model with pre-trained weights. To this end, you will need  to set the chekpoint file using the parameter **CKPFILE** in the corresponding configuration file.
 # Checkpoints 
 The following checpoints were produced by a ResNet-34
 ## ImageNet
