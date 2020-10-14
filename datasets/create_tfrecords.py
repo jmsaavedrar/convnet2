@@ -22,6 +22,8 @@ if __name__ == '__main__':
     process_fun = imgproc.process_image
     if configuration.get_image_type() == 'SKETCH'  : 
         process_fun = imgproc.process_sketch        
+    elif configuration.get_image_type() == 'MNIST'  : 
+        process_fun = imgproc.process_mnist
     data.create_tfrecords(configuration, 
                           pargs.type, 
                           processFun = process_fun)

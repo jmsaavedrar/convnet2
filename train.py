@@ -2,19 +2,19 @@
 jsaavedr, 2020
 This allows you to train and test your model
 
-Before using this program, set the path where the folder "covnet2"  is saved.
+Before using this program, set the path where the folder "covnet2"  is stored.
 To use train.py, you will require to send the following parameters :
  * -config : A configuration file where a set of parameters for data construction and trainig is set.
  * -name: A section name in the configuration file.
- * -mode: [train, test, variables] for training, testing, or showing  variables of the current model. By default this is set to 'train'
+ * -mode: [train, test] for training, testing, or showing  variables of the current model. By default this is set to 'train'
  * -save: Set true for saving the model
 """
 
 import sys
 #set the convnet2 path
-sys.path.append("/home/jsaavedr/Research/git/tensorflow-2/covnet2")
+sys.path.append("/home/jsaavedr/Research/git/tensorflow-2/convnet2")
 import tensorflow as tf
-from models import resnet
+from models import resnet, uv_rois
 import datasets.data as data
 import utils.configuration as conf
 import utils.losses as losses
@@ -26,7 +26,7 @@ if __name__ == '__main__' :
     parser = argparse.ArgumentParser(description = "Train a simple mnist model")
     parser.add_argument("-config", type = str, help = "<str> configuration file", required = True)
     parser.add_argument("-name", type=str, help=" name of section in the configuration file", required = True)
-    parser.add_argument("-mode", type=str, choices=['train', 'test', 'variables'],  help=" train or test", required = False, default = 'train')
+    parser.add_argument("-mode", type=str, choices=['train', 'test'],  help=" train or test", required = False, default = 'train')
     parser.add_argument("-save", type= bool,  help=" True to save the model", required = False, default = False)    
     pargs = parser.parse_args()     
     configuration_file = pargs.config
@@ -79,8 +79,15 @@ if __name__ == '__main__' :
             save_freq = 'epoch',            
             )
         #save_freq = configuration.get_snapshot_steps())        
-        #resnet 34
-        model = resnet.ResNet([3,4,6,3],[64,128,256,512], configuration.get_number_of_classes(), se_factor = 0)
+        #resnet 34        
+        if configuration.get_model_name() == 'UVROIS' :            
+            model = uv_rois.UVRoisModel(configuration.get_number_of_classes())
+            print('Model is UV')
+            sys.stdout.flush()
+        else :
+            model = resnet.ResNet([3,4,6,3],[64,128,256,512], configuration.get_number_of_classes(), se_factor = 0)
+            print('Model is Resnet')
+            sys.stdout.flush()
         #resnet_50
         #model = resnet.ResNet([3,4,6,3],[64,128,256,512], configuration.get_number_of_classes(), use_bottleneck = True)
         #build the model indicating the input shape
