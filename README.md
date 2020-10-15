@@ -14,5 +14,10 @@ md5sum: a456fe88f2bad870b2218661848169d0
 [Download](https://www.dropbox.com/s/kb443ulitvipixy/sketch_050.h5)
 
 md5sum: a53f18d41b2b3b4c4dc8ce5026c6317c
-
+# Datasets
+## MNIST-5000
+[Download] (https://www.dropbox.com/s/abi61g7adjdbmih/MNIST-5000.zip)
+## MNIST-FULL
+[Download] (https://www.dropbox.com/sh/se9n4tj3lh35rfm/AACTmKn7F5yVV-SaJbIWgHgna)
+## Sketches
 
