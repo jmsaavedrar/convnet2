@@ -15,6 +15,7 @@ import sys
 sys.path.append("/home/jsaavedr/Research/git/tensorflow-2/convnet2")
 import tensorflow as tf
 from models import simple
+from models import alexnet
 import datasets.data as data
 import utils.configuration as conf
 import utils.losses as losses
@@ -76,9 +77,11 @@ if __name__ == '__main__' :
         )
     #save_freq = configuration.get_snapshot_steps())        
     #resnet 34        
-              
-    model = simple.SimpleModel(configuration.get_number_of_classes())    
-    sys.stdout.flush()    
+    if configuration.get_model_name() == 'SKETCH' :          
+        model = alexnet.AlexNetModel(configuration.get_number_of_classes())
+    else:
+        model = simple.SimpleModel(configuration.get_number_of_classes())    
+            
     #resnet_50
     #model = resnet.ResNet([3,4,6,3],[64,128,256,512], configuration.get_number_of_classes(), use_bottleneck = True)
     #build the model indicating the input shape
@@ -91,7 +94,7 @@ if __name__ == '__main__' :
         model.load_weights(configuration.get_checkpoint_file(), by_name = True, skip_mismatch = True)        
                             
            
-    opt = tf.keras.optimizers.Adam(learning_rate = configuration.get_learning_rate())
+    opt = tf.keras.optimizers.Adam() #learning_rate = configuration.get_learning_rate())
     model.compile(optimizer=opt,
                   loss= losses.crossentropy_loss,
                   metrics=['accuracy'])
