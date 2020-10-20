@@ -18,12 +18,15 @@ if __name__ == '__main__':
     pargs = parser.parse_args() 
     configuration_file = pargs.config
     #assert os.path.exists(configuration_file), "configuration file does not exist {}".format(configuration_file)   
-    configuration = conf.ConfigurationFile(configuration_file, pargs.name)               
+    configuration = conf.ConfigurationFile(configuration_file, pargs.name)
+                   
     process_fun = imgproc.process_image
     if configuration.get_image_type() == 'SKETCH'  : 
         process_fun = imgproc.process_sketch        
     elif configuration.get_image_type() == 'MNIST'  : 
         process_fun = imgproc.process_mnist
+    elif configuration.get_image_type() == 'CUSTOM'  : 
+        process_fun = imgproc.create_processing_function(configuration.get_image_processing_params())    
     data.create_tfrecords(configuration, 
                           pargs.type, 
                           processFun = process_fun)

@@ -10,6 +10,9 @@ class ConfigurationFile:
                                    'IMAGE_SIZE': '1',
                                    'CKPFILE': 'NONE',
                                    'KEEP_ASPECT_RATIO' : 'True',
+                                   'CROPPING' : 'False',
+                                   'BGCOLOR' : '255',
+                                   'PADDING' : '0',
                                    'USE_L2' : 'False',
                                    'WEIGHT_DECAY' : '0.0',
                                    'SHUFFLE_SIZE' : '1000',
@@ -42,6 +45,9 @@ class ConfigurationFile:
                 self.image_width = config.getint(modelname, "IMAGE_WIDTH")
                 self.image_height = config.getint(modelname, "IMAGE_HEIGHT")                
                 self.image_type = config.get(modelname, "IMAGE_TYPE").upper()
+                self.padding = config.getint(modelname, "PADDING")
+                self.cropping = config.getboolean(modelname, "CROPPING")
+                self.bgcolor = config.get(modelname, "BGCOLOR")
                 self.checkpoint_file = config.get(modelname, "CKPFILE")
                 self.checkpoint_file_sketch = config.get(modelname, "CKPFILE_SKETCH")
                 self.checkpoint_file_photo = config.get(modelname, "CKPFILE_PHOTO")
@@ -151,7 +157,29 @@ class ConfigurationFile:
     
     def get_decay_steps(self):
         return self.decay_steps
-        
+    
+    def use_cropping(self):
+        return self.cropping
+    
+    def get_bgcolor(self):
+        _bgcolor = 255;
+        if self.get_number_of_channels() == 1 :
+            _bgcolor = int(self.bgcolor)
+        else :
+            _bgcolor = [int(v.strip()) for v in self.bgcolor.split()]
+            assert(self.channels == len(_bgcolor))    
+        return _bgcolor
+    def get_padding(self):
+        return self.padding
+    
+    def get_image_processing_params(self) :
+        imgproc_params = {};
+        imgproc_params['keep_aspect_ratio'] = self.use_keep_aspect_ratio()
+        imgproc_params['padding_value'] = self.get_padding()
+        imgproc_params['with_crop'] = self.use_cropping()
+        imgproc_params['bg_color'] = self.get_bgcolor()
+        imgproc_params['n_channels'] = self.get_number_of_channels()
+        return imgproc_params;    
     
     def show(self):
         print("NUM_EPOCHS: {}".format(self.get_number_of_epochs()))        

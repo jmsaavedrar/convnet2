@@ -20,6 +20,7 @@ import datasets.data as data
 import utils.configuration as conf
 import utils.losses as losses
 import utils.imgproc as imgproc
+import utils.metrics as metrics
 import numpy as np
 import argparse
 import os
@@ -77,10 +78,12 @@ if __name__ == '__main__' :
         )
     #save_freq = configuration.get_snapshot_steps())        
     #resnet 34        
-    if configuration.get_model_name() == 'SKETCH' :          
-        model = alexnet.AlexNetModel(configuration.get_number_of_classes())
+    if configuration.get_model_name() == 'SKETCH' :
+        model = alexnet.AlexNetModel(configuration.get_number_of_classes())        
+        process_fun = imgproc.process_sketch
     else:
-        model = simple.SimpleModel(configuration.get_number_of_classes())    
+        model = simple.SimpleModel(configuration.get_number_of_classes())
+        process_fun = imgproc.process_mnist    
             
     #resnet_50
     #model = resnet.ResNet([3,4,6,3],[64,128,256,512], configuration.get_number_of_classes(), use_bottleneck = True)
@@ -97,7 +100,7 @@ if __name__ == '__main__' :
     opt = tf.keras.optimizers.Adam() #learning_rate = configuration.get_learning_rate())
     model.compile(optimizer=opt,
                   loss= losses.crossentropy_loss,
-                  metrics=['accuracy'])
+                  metrics=['accuracy', metrics.simple_accuracy])
  
     if pargs.mode == 'train' :                             
         history = model.fit(tr_dataset, 
@@ -112,11 +115,15 @@ if __name__ == '__main__' :
     elif pargs.mode == 'predict':
         filename = input('file :')
         while(filename != 'end') :
-            image = imgproc.process_mnist(data.read_image(filename, configuration.get_number_of_channels()), (31,31) )
+            target_size = (configuration.get_image_height(), configuration.get_image_width())
+            image = process_fun(data.read_image(filename, configuration.get_number_of_channels()), target_size )
             image = image - mean_image
             image = tf.expand_dims(image, 0)        
             pred = model.predict(image)
-            cla = np.argmax(pred[0])
+            pred = pred[0]
+            pred = np.exp(pred - max(pred))
+            pred = pred / np.sum(pred)            
+            cla = np.argmax(pred)
             print(pred)                                               
             print(cla)
             filename = input('file :')

@@ -17,11 +17,12 @@ def d_negative(y_true, y_pred):
     #hardest negative and hardest positive
     return d_n_hard
 
-def get_lr_metric(model):
-    def lr(y_true, y_pred):
-        return model.optimizer.get_config()['learning_rate']
-    return lr
-
+def simple_accuracy(y_true, y_pred):
+    #B x n_clases
+    correct_prediction = tf.equal(tf.argmax(y_true,1), tf.argmax(y_pred,1))
+    acc = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+    return acc
+    
 def metric_accuracy_siamese(y_true, y_pred):
     y_true_a, y_true_p, y_true_n = tf.split(y_true, axis = 1, num_or_size_splits = 3)
     cl_a, cl_p, cl_n = tf.split(y_pred, axis = 1, num_or_size_splits = 3)
