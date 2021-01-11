@@ -16,6 +16,7 @@ sys.path.append("/home/jsaavedr/Research/git/tensorflow-2/convnet2")
 import tensorflow as tf
 from models import simple
 from models import alexnet
+from models import resnet
 import datasets.data as data
 import utils.configuration as conf
 import utils.losses as losses
@@ -79,7 +80,7 @@ if __name__ == '__main__' :
     #save_freq = configuration.get_snapshot_steps())        
     #resnet 34        
     if configuration.get_model_name() == 'SKETCH' :
-        model = alexnet.AlexNetModel(configuration.get_number_of_classes())        
+        model = alexnet.AlexNetModel(configuration.get_number_of_classes())            
         process_fun = imgproc.process_sketch
     else:
         model = simple.SimpleModel(configuration.get_number_of_classes())

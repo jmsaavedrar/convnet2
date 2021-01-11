@@ -117,7 +117,7 @@ class BottleneckBlock(tf.keras.layers.Layer):
         self.se = 0
         self.use_se_block = False
         if se_factor > 0 :
-            self.se = SEBlock(filters, filters / se_factor)
+            self.se = SEBlock(filters * 4, (filters * 4) / se_factor)
             self.use_se_block = True
         
     #using full pre-activation mode
@@ -196,7 +196,7 @@ class ResNetBackbone(tf.keras.Model):
                                                   use_bottleneck = use_bottleneck,
                                                   se_factor = se_factor,
                                                   name = 'block_{}'.format(idx_block)))
-            self.bn_last= tf.keras.layers.BatchNormalization(name = 'bn_last')
+        self.bn_last= tf.keras.layers.BatchNormalization(name = 'bn_last')
             
         
     def call(self, inputs, training):
@@ -234,7 +234,19 @@ class ResNet(tf.keras.Model):
         x = self.classifier(x)
         return x
     
-
+class ResNetFeatureVector(tf.keras.Model):        
+    #does not need number_of_classes
+    def __init__(self, block_sizes, filters, use_bottleneck = False, se_factor = 0, **kwargs) :
+        super(ResNetFeatureVector, self).__init__(**kwargs)
+        self.backbone = ResNetBackbone(block_sizes, filters, use_bottleneck, se_factor, name = 'backbone')                            
+        self.avg_pool = tf.keras.layers.GlobalAveragePooling2D()                             
+        
+    def call(self, inputs, training):
+        x = inputs
+        x = self.backbone(x, training)    
+        x = self.avg_pool(x)                                                    
+        return x
+    
 class SiameseNet(tf.keras.Model):
     
     def __init__(self, block_sizes, filters,  number_of_classes, use_bottleneck = False, se_factor = 0, **kwargs) :

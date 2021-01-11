@@ -26,7 +26,12 @@ def _bytes_feature(value):
 #%% float should be used for floating point data
 def _float_feature(value):    
     return tf.train.Feature(float_list=tf.train.FloatList(value=[value]))
-
+#%% float list
+def _float_list_feature(value):    
+    return tf.train.Feature(float_list=tf.train.FloatList(value=value))
+#%% int64 list
+def _int64_list_feature(value):    
+    return tf.train.Feature(int64_list=tf.train.Int64List(value=value))
 
 def read_image(filename, number_of_channels):
     """ read_image using skimage

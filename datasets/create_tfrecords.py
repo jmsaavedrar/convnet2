@@ -3,7 +3,7 @@
 Description: Create tfrecords
 """
 import sys
-sys.path.append("/media/hdvision/jsaavedr/Research/git/tensorflow-2/convnet2")
+sys.path.append("/home/jsaavedr/Research/git/tensorflow-2/convnet2")
 import argparse
 import utils.configuration as conf
 import utils.imgproc as imgproc

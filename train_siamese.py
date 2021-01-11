@@ -104,6 +104,7 @@ if __name__ == '__main__' :
                 
         if pargs.save :
             saved_to = os.path.join(configuration.get_data_dir(),"saved-model")
-            tf.saved_model.save(model, os.path.join(configuration.get_data_dir(),"saved-model"))
+            model.save(saved_to)
+            #tf.saved_model.save(model, os.path.join(configuration.get_data_dir(),"saved-model"))
             print("model saved to {}".format(saved_to))            
         

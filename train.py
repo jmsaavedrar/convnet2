@@ -129,5 +129,4 @@ if __name__ == '__main__' :
         if pargs.save :
             saved_to = os.path.join(configuration.get_data_dir(),"cnn-model")
             model.save(saved_to)
-            print("model saved to {}".format(saved_to))
-            
+            print("model saved to {}".format(saved_to))                    
