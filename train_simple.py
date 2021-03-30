@@ -1,10 +1,11 @@
 """
 jsaavedr, 2020
+
 This is a simple version of train.py. 
 
-Before using this program, set the path where the folder "covnet2"  is stored.
-To use train.py, you will require to send the following parameters :
- * -config : A configuration file where a set of parameters for data construction and trainig is set.
+Before using this program, set the path where the folder "convnet2" can be located.
+To use train.py, you will require to set the following parameters :
+ * -config : A configuration file where a set of parameters for data construction and trainig is defined.
  * -name: A section name in the configuration file.
  * -mode: [train, test] for training, testing, or showing  variables of the current model. By default this is set to 'train'
  * -save: Set true for saving the model
@@ -16,7 +17,6 @@ sys.path.append("/home/jsaavedr/Research/git/tensorflow-2/convnet2")
 import tensorflow as tf
 from models import simple
 from models import alexnet
-from models import resnet
 import datasets.data as data
 import utils.configuration as conf
 import utils.losses as losses
@@ -31,7 +31,7 @@ if __name__ == '__main__' :
     parser.add_argument("-config", type = str, help = "<str> configuration file", required = True)
     parser.add_argument("-name", type=str, help=" name of section in the configuration file", required = True)
     parser.add_argument("-mode", type=str, choices=['train', 'test', 'predict'],  help=" train or test", required = False, default = 'train')
-    parser.add_argument("-save", type= bool,  help=" True to save the model", required = False, default = False)    
+    parser.add_argument("-save", type=lambda x: (str(x).lower() == 'true'),  help=" True to save the model", required = False, default = False)    
     pargs = parser.parse_args()     
     configuration_file = pargs.config
     configuration = conf.ConfigurationFile(configuration_file, pargs.name)                   
@@ -51,16 +51,14 @@ if __name__ == '__main__' :
     #
     input_shape =  np.fromfile(shape_file, dtype=np.int32)
     mean_image = np.fromfile(mean_file, dtype=np.float32)
-    mean_image = np.reshape(mean_image, input_shape)
-        
+    mean_image = np.reshape(mean_image, input_shape)        
     number_of_classes = configuration.get_number_of_classes()
-    #loading tfrecords into dataset object
+    #loading tfrecords into a dataset object
     if pargs.mode == 'train' : 
         tr_dataset = tf.data.TFRecordDataset(tfr_train_file)
         tr_dataset = tr_dataset.map(lambda x : data.parser_tfrecord(x, input_shape, mean_image, number_of_classes, with_augmentation = True));    
         tr_dataset = tr_dataset.shuffle(configuration.get_shuffle_size())        
-        tr_dataset = tr_dataset.batch(batch_size = configuration.get_batch_size())    
-        #tr_dataset = tr_dataset.repeat()
+        tr_dataset = tr_dataset.batch(batch_size = configuration.get_batch_size())            
 
     if pargs.mode == 'train' or  pargs.mode == 'test':
         val_dataset = tf.data.TFRecordDataset(tfr_test_file)
@@ -69,9 +67,9 @@ if __name__ == '__main__' :
                         
        
     #Defining callback for saving checkpoints
-    #save_freq: frecuency in terms of number steps each time checkpoint is saved 
+    #save_freq: frequency in terms of number steps each time checkpoint is saved 
     model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
-        filepath=configuration.get_snapshot_dir() + '{epoch:03d}.h5',
+        filepath=os.path.join(configuration.get_snapshot_dir(), '{epoch:03d}.h5'),
         save_weights_only=True,
         mode = 'max',
         monitor='val_acc',
@@ -89,16 +87,15 @@ if __name__ == '__main__' :
     #resnet_50
     #model = resnet.ResNet([3,4,6,3],[64,128,256,512], configuration.get_number_of_classes(), use_bottleneck = True)
     #build the model indicating the input shape
-    #define the model input
+    #define the model input    
     input_image = tf.keras.Input((input_shape[0], input_shape[1], input_shape[2]), name = 'input_image')     
     model(input_image)    
     model.summary()
     #use_checkpoints to load weights
     if configuration.use_checkpoint() :                
         model.load_weights(configuration.get_checkpoint_file(), by_name = True, skip_mismatch = True)        
-                            
-           
     opt = tf.keras.optimizers.Adam() #learning_rate = configuration.get_learning_rate())
+    #opt = tf.keras.optimizers.SGD(momentum = 0.9, nesterov = True)
     model.compile(optimizer=opt,
                   loss= losses.crossentropy_loss,
                   metrics=['accuracy', metrics.simple_accuracy])
@@ -113,6 +110,7 @@ if __name__ == '__main__' :
     elif pargs.mode == 'test' :
         model.evaluate(val_dataset,
                        steps = configuration.get_validation_steps())
+        
     elif pargs.mode == 'predict':
         filename = input('file :')
         while(filename != 'end') :
@@ -122,6 +120,7 @@ if __name__ == '__main__' :
             image = tf.expand_dims(image, 0)        
             pred = model.predict(image)
             pred = pred[0]
+            #softmax to estimate probs
             pred = np.exp(pred - max(pred))
             pred = pred / np.sum(pred)            
             cla = np.argmax(pred)

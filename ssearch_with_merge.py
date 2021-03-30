@@ -47,7 +47,7 @@ class SSearchMerge :
         #defining process arch
         self.process_fun =  imgproc.process_image
         #loading catalog
-        self.ssearch_dir = os.path.join(self.configuration.get_data_dir(), 'ssearch')
+        self.ssearch_dir = os.path.join(self.configuration.get_search_dir(), 'ssearch')
         catalog_file = os.path.join(self.ssearch_dir, 'catalog.txt')        
         assert os.path.exists(catalog_file), '{} does not exist'.format(catalog_file)
         print('loading catalog ...')
@@ -98,7 +98,14 @@ class SSearchMerge :
         #sim = np.matmul(self.normalize(self.features), np.transpose(self.normalize(q_fv)))
         #sim = np.reshape(sim, (-1))
         #it seems that Euclidean performs better than cosine
-        d = np.sqrt(np.sum(np.square(self.features - q_fv[0]), axis = 1))
+        features  = self.normalize(self.features)
+        qvector = self.normalize(q_fv)
+        alfa = 0.9
+        features[:,:512] = alfa * features[:,:512]
+        features[:,512:] = (1-alfa) * features[:,512:]          
+        qvector[:,:512] = alfa * qvector[:,:512]
+        qvector[:,512:] = (1-alfa) * qvector[:,512:]
+        d = np.sqrt(np.sum(np.square(features - qvector[0]), axis = 1))
         #idx_sorted = np.argsort(-sim)        
         idx_sorted = np.argsort(d)
         print(d[idx_sorted[:10]])

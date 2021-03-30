@@ -18,8 +18,8 @@ class ConfigurationFile:
                                    'SHUFFLE_SIZE' : '1000',
                                    'CKPFILE_SKETCH' : 'NONE',
                                    'CKPFILE_PHOTO' : 'NONE',
-                                   'DECAY_STEPS'   : '0'                                
-                                    
+                                   'DECAY_STEPS'   : '0',
+                                   'SEARCH_DIR'   : 'NONE'
                                    })
         config.read(str_config)
         self.sections = config.sections()                
@@ -38,7 +38,8 @@ class ConfigurationFile:
                 self.lr = config.getfloat(modelname, "LEARNING_RATE")
                 #snapshot folder, where training data will be saved
                 self.snapshot_prefix = config.get(modelname, "SNAPSHOT_DIR")
-                self.data_dir = config.get(modelname,"DATA_DIR")                
+                self.data_dir = config.get(modelname,"DATA_DIR")
+                self.search_dir = config.get(modelname,"SEARCH_DIR")
                 self.channels = config.getint(modelname,"CHANNELS")
                 self.keep_aspect_ratio = config.getboolean(modelname, "KEEP_ASPECT_RATIO")                            
                 self.image_size = config.getint(modelname, "IMAGE_SIZE")
@@ -91,6 +92,9 @@ class ConfigurationFile:
     
     def get_data_dir(self):
         return self.data_dir
+    
+    def get_search_dir(self):
+        return self.search_dir
     
     def get_learning_rate(self):
         return self.lr
