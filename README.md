@@ -18,7 +18,12 @@ md5sum: a53f18d41b2b3b4c4dc8ce5026c6317c
 ## MNIST-5000
 [Download](https://www.dropbox.com/s/abi61g7adjdbmih/MNIST-5000.zip)
 ## MNIST-FULL
-[Download](https://www.dropbox.com/sh/se9n4tj3lh35rfm/AACTmKn7F5yVV-SaJbIWgHgna)
+- Training Images [60000] [download](https://www.dropbox.com/s/6lmn4fre326cty2/mnist_test.gzip)
+- Testing Images [60000]  [download](https://www.dropbox.com/s/knvoss1iukj42pk/mnist_train.gzip)
+A siimple code you can run to genereate test.txt and train.txt
+```
+find $(pwd)/Test -name *.png | awk -F '\/' '{f=$NF; sub(".png","",f); gsub(".*_","",f);print $0"\t"f}' > test.txt
+```
 ## Sketches-Eitz
 [Download]https://www.dropbox.com/s/ut350iwgby9swk2/Sketch_EITZ.zip?dl=0
 
