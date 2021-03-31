@@ -40,13 +40,13 @@ https://github.com/googlecreativelab/quickdraw-dataset
 [Download](https://www.dropbox.com/sh/hsqjv0kd13xda3g/AABYkVk0ruG85s4aL4C1nDKaa)
 
 # Running a Simple Example
-1. Prepare the dataset for training
+## Prepare the dataset for training
 
 We will need the following files train.txt and test.txt. These files should contain the list of images that will be used for training and testing, respectively. Each file should come in a two-column format, the first column is the absolute filename for each image, and the second is the corresponding class (0-indexed). The separator between columns is the tab character.
 
 For this example, we will use the MNIST dataset that can be download as specified [above](#datasets).
 
-2. Prepare a configuration file
+## Prepare a configuration file
 
 To facilitate the parameter setting, we include a configuration file with the following parameters:
 - NUM_EPOCHS: *It is the number of epochs the training will run*
@@ -67,20 +67,20 @@ We can include different sets of parameters for various experiments. To make eac
 
 An example of a configuration file for MNIST can be found [here](configs/mnist_full.config).
 
-1. Create tfrecords 
+## Create tfrecords 
 An efficient way to store the data is through tfrecords. This allows the model to load the dataset quickly. 
 ```
 python datasets/create_tfrecords.py -type all -config configs/mnist_full.config -name MNIST
 ```
-4. Train
+## Train
 ```
 python train_simple.py  -mode train  -config ../configs/mnist_full.config -name MNIST
 ```
-6. Test
+## Test
 ```
 python train_simple.py  -mode test  -config ../configs/mnist_full.config -name MNIST
 ```
-7. Predict
+## Predict
 ```
 python train_simple.py  -mode predict  -config ../configs/mnist_full.config -name MNIST
 ```
