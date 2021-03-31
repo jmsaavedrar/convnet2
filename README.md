@@ -42,7 +42,6 @@ https://github.com/googlecreativelab/quickdraw-dataset
 # Running a Simple Example
 1. Prepare the dataset for training
 We will need the following files train.txt and test.txt. These files should contain the list of images that will be used for training and testing, respectively. Each file should come in a two-column format, the first column is the absolute filename for each image, and the second is the corresponding class (0-indexed). The separator between columns is the tab character.
-
 For this example, we will use the MNIST dataset that can be download as specified [above](#datasets).
 
 2. Prepare a configuration file
@@ -60,11 +59,11 @@ To facilitate the parameter setting, we include a configuration file with the fo
 - IMAGE_WIDTH = *The target image width*
 - IMAGE_HEIGHT = *The target image height*
 - SHUFFLE_SIZE = *It is used to reserve a fixed memory for shuffling the data*
-- CKPFILE = *It is the abosulte path from initial weights are loaded*
+- CKPFILE = *It is the abosulte path from initial weights are loaded. It is optional.*
 
 We can include different sets of parameters for various experiments. To make each configuration unique, we have a section name.
 
-An example of a configuration file for MNIST can be found in 
+An example of a configuration file for MNIST can be found [here](configs/mnist_full.config).
 .
 2. Create tfrecords 
 An efficient way to store the data is through tfrecords. This allows the model to load the dataset quickly. 
