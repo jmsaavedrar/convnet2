@@ -1,5 +1,5 @@
 # convnet2
-cnn based on tensorflow 2.3+
+cnn based on tensorflow 2.3+. Please, check the instructions to install it [here](https://www.tensorflow.org/install/gpu#ubuntu_1804_cuda_101).
 # Using Checkpoints
 You can use a checkpoint to initialize the model with pre-trained weights. To this end, you will need  to set the chekpoint file using the parameter **CKPFILE** in the corresponding configuration file.
 # Checkpoints 
