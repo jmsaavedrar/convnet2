@@ -17,6 +17,7 @@ md5sum: a53f18d41b2b3b4c4dc8ce5026c6317c
 <a name="datasets"></a>
 # Datasets
 ## MNIST-5000
+<a name="mnist5000"></a>
 This is a sample of the original MNIST dataset with 5000 images for training.
 
 [Download](https://www.dropbox.com/s/abi61g7adjdbmih/MNIST-5000.zip)
@@ -44,7 +45,7 @@ https://github.com/googlecreativelab/quickdraw-dataset
 
 We will need the following files train.txt and test.txt. These files should contain the list of images that will be used for training and testing, respectively. Each file should come in a two-column format, the first column is the absolute filename for each image, and the second is the corresponding class (0-indexed). The separator between columns is the tab character.
 
-For this example, we will use the MNIST dataset that can be download as specified [above](#datasets).
+For this example, we will use the MNIST dataset that can be download as specified [above](#datasets). If you want to try with a smaller datataset, you can use [MNIST-5000](#mnist5000).
 
 ## Prepare a configuration file
 
@@ -65,7 +66,7 @@ To facilitate the parameter setting, we include a configuration file with the fo
 
 We can include different sets of parameters for various experiments. To make each configuration unique, we have a section name.
 
-An example of a configuration file for MNIST can be found [here](configs/mnist_full.config).
+An example of a configuration file for MNIST can be found [here](configs/mnist_full.config). 
 
 ## Create tfrecords 
 An efficient way to store the data is through tfrecords. This allows the model to load the dataset quickly. 
@@ -85,3 +86,5 @@ python train_simple.py  -mode test  -config ../configs/mnist_full.config -name M
 python train_simple.py  -mode predict  -config ../configs/mnist_full.config -name MNIST
 ```
 In this case, the program will ask you for an input image.
+
+For any further question please contact to jose.saavedra@orand.cl.
