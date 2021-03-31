@@ -41,6 +41,7 @@ https://github.com/googlecreativelab/quickdraw-dataset
 
 # Running a Simple Example
 1. Prepare the dataset for training
+
 We will need the following files train.txt and test.txt. These files should contain the list of images that will be used for training and testing, respectively. Each file should come in a two-column format, the first column is the absolute filename for each image, and the second is the corresponding class (0-indexed). The separator between columns is the tab character.
 
 For this example, we will use the MNIST dataset that can be download as specified [above](#datasets).
@@ -66,7 +67,7 @@ We can include different sets of parameters for various experiments. To make eac
 
 An example of a configuration file for MNIST can be found [here](configs/mnist_full.config).
 
-2. Create tfrecords 
+1. Create tfrecords 
 An efficient way to store the data is through tfrecords. This allows the model to load the dataset quickly. 
 ```
 python datasets/create_tfrecords.py -type all -config configs/mnist_full.config -name MNIST
