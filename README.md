@@ -42,7 +42,8 @@ https://github.com/googlecreativelab/quickdraw-dataset
 # Running a Simple Example
 1. Prepare the dataset for training
 We will need the following files train.txt and test.txt. These files should contain the list of images that will be used for training and testing, respectively. Each file should come in a two-column format, the first column is the absolute filename for each image, and the second is the corresponding class (0-indexed). The separator between columns is the tab character.
-For this example, we will use the MNIST dataset that can be download as specified [above](#datasets).
+
+  For this example, we will use the MNIST dataset that can be download as specified [above](#datasets).
 
 2. Prepare a configuration file
 
