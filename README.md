@@ -16,8 +16,8 @@ md5sum: a456fe88f2bad870b2218661848169d0
 md5sum: a53f18d41b2b3b4c4dc8ce5026c6317c
 <a name="datasets"></a>
 # Datasets
-## MNIST-5000
 <a name="mnist5000"></a>
+## MNIST-5000
 This is a sample of the original MNIST dataset with 5000 images for training.
 
 [Download](https://www.dropbox.com/s/abi61g7adjdbmih/MNIST-5000.zip)
