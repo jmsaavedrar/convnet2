@@ -43,25 +43,25 @@ https://github.com/googlecreativelab/quickdraw-dataset
 # Running a Simple Example
 ## Prepare the dataset for training
 
-We will need the following files train.txt and test.txt. These files should contain the list of images that will be used for training and testing, respectively. Each file should come in a two-column format, the first column is the absolute filename for each image, and the second is the corresponding class (0-indexed). The separator between columns is the tab character.
+We will need the files *train.txt* and *test.txt*. These files should contain the list of images that will be used for training and testing, respectively. Each file should come in a two-column format, the first column is the absolute filename for each image, and the second is the corresponding class (0-indexed). The separator between columns is the tab character.
 
 For this example, we will use the MNIST dataset that can be download as specified [above](#datasets). If you want to try with a smaller datataset, you can use [MNIST-5000](#mnist5000).
 
 ## Prepare a configuration file
 
 To facilitate the parameter setting, we include a configuration file with the following parameters:
-- NUM_EPOCHS: *It is the number of epochs the training will run*
-- NUM_CLASSES = *It is the number of classes in your problem*
-- BATCH_SIZE = *Size of each batch*
-- VALIDATION_STEPS = *It is the number of iterations required to cover the validation dataset. It is equal to validation_size/batch_size*
-- LEARNING_RATE = *It is the learning rate*
-- SNAPSHOT_DIR = *It is the path where the weights will be stored during training*
-- DATA_DIR = *It is the path where train.txt and test.txt are stored*
-- CHANNELS = *It is the number of channels for the input images*
-- IMAGE_TYPE = *It is a customized name that will define the type of preprocessing applied to the input images*
-- IMAGE_WIDTH = *The target image width*
-- IMAGE_HEIGHT = *The target image height*
-- SHUFFLE_SIZE = *It is used to reserve a fixed memory for shuffling the data*
+- NUM_EPOCHS: *It is the number of epochs the training will run.*
+- NUM_CLASSES = *It is the number of classes in your problem.*
+- BATCH_SIZE = *Size of each batch.*
+- VALIDATION_STEPS = *It is the number of iterations required to cover the validation dataset. It is equal to validation_size/batch_size.*
+- LEARNING_RATE = *It is the learning rate.*
+- SNAPSHOT_DIR = *It is the path where the weights will be stored during training.*
+- DATA_DIR = *It is the path where train.txt and test.txt are stored.*
+- CHANNELS = *It is the number of channels for the input images.*
+- IMAGE_TYPE = *It is a customized name that will define the type of preprocessing applied to the input images.*
+- IMAGE_WIDTH = *The target image width.*
+- IMAGE_HEIGHT = *The target image height.*
+- SHUFFLE_SIZE = *It is used to reserve a fixed memory for shuffling the data.*
 - CKPFILE = *It is the abosulte path from initial weights are loaded. It is optional.*
 
 We can include different sets of parameters for various experiments. To make each configuration unique, we have a section name.
@@ -75,15 +75,15 @@ python datasets/create_tfrecords.py -type all -config configs/mnist_full.config 
 ```
 ## Train
 ```
-python train_simple.py  -mode train  -config ../configs/mnist_full.config -name MNIST
+python train_simple.py  -mode train  -config configs/mnist_full.config -name MNIST
 ```
 ## Test
 ```
-python train_simple.py  -mode test  -config ../configs/mnist_full.config -name MNIST
+python train_simple.py  -mode test  -config configs/mnist_full.config -name MNIST
 ```
 ## Predict
 ```
-python train_simple.py  -mode predict  -config ../configs/mnist_full.config -name MNIST
+python train_simple.py  -mode predict  -config configs/mnist_full.config -name MNIST
 ```
 In this case, the program will ask you for an input image.
 
