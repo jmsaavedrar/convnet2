@@ -65,7 +65,7 @@ To facilitate the parameter setting, we include a configuration file with the fo
 We can include different sets of parameters for various experiments. To make each configuration unique, we have a section name.
 
 An example of a configuration file for MNIST can be found [here](configs/mnist_full.config).
-.
+
 2. Create tfrecords 
 An efficient way to store the data is through tfrecords. This allows the model to load the dataset quickly. 
 ```
