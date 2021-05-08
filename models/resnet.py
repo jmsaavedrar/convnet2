@@ -8,9 +8,6 @@ import tensorflow as tf
 import sys
 sys.path.append("/home/jsaavedr/Research/git/tensorflow-2/convnet2")
 
-
-
-
 # a conv 3x3
 
 def conv3x3(channels, stride = 1, **kwargs):
@@ -32,7 +29,7 @@ def conv1x1(channels, stride = 1, **kwargs):
 class SEBlock(tf.keras.layers.Layer):
     """
     Squeeze and Excitation Block
-    r_channels is the number of reduced channels
+    r_channels is the factor of reduction
     """
     
     def __init__(self, channels, r_channels, **kwargs):
@@ -146,7 +143,8 @@ class ResNetBlock(tf.keras.layers.Layer):
     resnet block implementation
     A resnet block contains a set of residual blocks
     Commonly, the residual block of a resnet block starts with a stride = 2, except for the first block
-    The number of blocks together with the number of filters used in each block  are defined in __init__    
+    The number of blocks together with the number of filters used in each block  are defined in __init__
+    with_reduction: it is True if the block should apply resolution reduction at the first layer    
     """
     
     def __init__(self, filters,  block_size, with_reduction = False, use_bottleneck = False, se_factor = 0, **kwargs):
@@ -159,9 +157,12 @@ class ResNetBlock(tf.keras.layers.Layer):
             residual_block = ResidualBlock            
         #the first block is nos affected by a spatial reduction 
         stride_0 = 1
+        #use_projection is True when the input should be projected to match the output dimensions
         use_projection_at_first = False
-        if with_reduction or use_bottleneck :
+        if with_reduction:
             stride_0 = 2
+            use_projection_at_first = True
+        if use_bottleneck:
             use_projection_at_first = True
         self.block_collector = [residual_block(filters = filters, stride = stride_0, use_projection = use_projection_at_first, se_factor = se_factor, name = 'rblock_0')]        
         for idx_block in range(1, block_size) :
@@ -216,7 +217,7 @@ class ResNet(tf.keras.Model):
     block_sizes: it is the number of residual components for each block e.g  [2,2,2] for 3 blocks 
     filters : it is the number of channels within each block [32,64,128]
     number_of_classes: The number of classes of the underlying problem
-    use_bottleneck: Is's true when bottlenect blocks are used.
+    use_bottleneck: Is's true when bottleneck blocks are used.
     se_factor : reduction factor in  SE module, 0 if SE is not used
     """        
     

@@ -10,6 +10,8 @@ def l2_regularization_loss(model, weight_decay):
 
 def crossentropy_loss(y_true, y_pred):
     """
+    shape of y_true = [Bx10]
+    shape of y_pred = [Bx10]
     This is the classical categorical crossentropy
     """
     ce = tf.keras.losses.categorical_crossentropy(y_true, y_pred, from_logits=True)    

@@ -56,7 +56,7 @@ if __name__ == '__main__' :
     #loading tfrecords into a dataset object
     if pargs.mode == 'train' : 
         tr_dataset = tf.data.TFRecordDataset(tfr_train_file)
-        tr_dataset = tr_dataset.map(lambda x : data.parser_tfrecord(x, input_shape, mean_image, number_of_classes, with_augmentation = True));    
+        tr_dataset = tr_dataset.map(lambda x : data.parser_tfrecord(x, input_shape, mean_image, number_of_classes, with_augmentation = False));    
         tr_dataset = tr_dataset.shuffle(configuration.get_shuffle_size())        
         tr_dataset = tr_dataset.batch(batch_size = configuration.get_batch_size())            
 
@@ -94,11 +94,12 @@ if __name__ == '__main__' :
     #use_checkpoints to load weights
     if configuration.use_checkpoint() :                
         model.load_weights(configuration.get_checkpoint_file(), by_name = True, skip_mismatch = True)        
-    opt = tf.keras.optimizers.Adam() #learning_rate = configuration.get_learning_rate())
-    #opt = tf.keras.optimizers.SGD(momentum = 0.9, nesterov = True)
+    #opt = tf.keras.optimizers.Adam() #learning_rate = configuration.get_learning_rate())
+    initial_learning_rate = configuration.get_learning_rate()    
+    opt = tf.keras.optimizers.SGD(learning_rate = initial_learning_rate, momentum = 0.9, nesterov = True)
     model.compile(optimizer=opt,
                   loss= losses.crossentropy_loss,
-                  metrics=['accuracy', metrics.simple_accuracy])
+                  metrics=[metrics.simple_accuracy])
  
     if pargs.mode == 'train' :                             
         history = model.fit(tr_dataset, 
@@ -124,8 +125,8 @@ if __name__ == '__main__' :
             pred = np.exp(pred - max(pred))
             pred = pred / np.sum(pred)            
             cla = np.argmax(pred)
-            print(pred)                                               
-            print(cla)
+            #print(pred[cla])                                               
+            print('{} [{}]'.format(cla, pred[cla]))
             filename = input('file :')
     #save the model   
     if pargs.save :

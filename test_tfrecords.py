@@ -35,16 +35,22 @@ if __name__ == '__main__' :
     number_of_classes = configuration.get_number_of_classes()
      
     tr_dataset = tf.data.TFRecordDataset(tfr_train_file)
-    tr_dataset = tr_dataset.map(lambda x : data.parser_tfrecord(x, input_shape, mean_image, number_of_classes, 'test'));    
+    tr_dataset = tr_dataset.map(lambda x : data.parser_tfrecord(x, input_shape, 0, number_of_classes, False));    
     tr_dataset = tr_dataset.shuffle(configuration.get_shuffle_size())        
     tr_dataset = tr_dataset.batch(batch_size = configuration.get_batch_size())    
     
-    fig, xs = plt.subplots(2,5)
+    n_rows = 8
+    n_cols = 8
+    fig, xs = plt.subplots(n_rows, n_cols)
+    for i in range(n_rows) :
+        for j in range(n_cols) :
+            xs[i, j].set_axis_off()
     for image,label in tr_dataset:            
-        for i in range(10) :
-            row = int (i / 5)
-            col = i % 5
-            im = 255 * (image[i] - np.min(image[i]))/ (np.max(image[i])-np.min(image[i]))
+        for i in range(64) :
+            row = int (i / n_cols)
+            col = i % n_cols
+            im = image[i]
+            #im = 255 * (image[i] - np.min(image[i]))/ (np.max(image[i])-np.min(image[i]))
             xs[row,col].imshow(np.uint8(im), cmap = 'gray')        
         plt.pause(1)
             

@@ -131,7 +131,7 @@ def image_crop_gray(image, bg_color, padding = 0):
         x_max = xs_pos[-1]
         y_min = ys_pos[0]
         y_max = ys_pos[-1]
-        cropped_image = image[y_min:y_max, x_min:x_max]
+        cropped_image = image[y_min:y_max + 1, x_min:x_max + 1]
         if padding > 0 :
             im_h = cropped_image.shape[0] + 2*padding
             im_w = cropped_image.shape[1] + 2*padding
