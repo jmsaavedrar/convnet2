@@ -23,8 +23,8 @@ This is a sample of the original MNIST dataset with 5000 images for training.
 [Download](https://www.dropbox.com/s/abi61g7adjdbmih/MNIST-5000.zip)
 ## MNIST-FULL
 You can download the complete set of images for training and testing following the next links:
-- Training Images [60000] [download](https://www.dropbox.com/s/6lmn4fre326cty2/mnist_test.gzip)
-- Testing Images [60000]  [download](https://www.dropbox.com/s/knvoss1iukj42pk/mnist_train.gzip)
+- Training Images [60000] [download](https://www.dropbox.com/s/knvoss1iukj42pk/mnist_train.gzip)
+- Testing Images [10000]  [download](https://www.dropbox.com/s/6lmn4fre326cty2/mnist_test.gzip)
 A siimple code you can run to genereate test.txt and train.txt
 ```
 find $(pwd)/Test -name *.png | awk -F '\/' '{f=$NF; sub(".png","",f); gsub(".*_","",f);print $0"\t"f}' > test.txt
