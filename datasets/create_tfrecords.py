@@ -1,11 +1,12 @@
 """
 @author: jsaavedr
 Description: Create tfrecords
-This code allow  you to generate tfrecords files for test.txt and train.txt
-Using tfrecords is an efficient manner to store the data, which allows the model to read the data quickly, especially during training.
+This code allows  you to generate tfrecords files for test.txt and train.txt
+Saving data as tfrecords is an efficient manner to store the data, which allows the model to read the data quickly, especially during training.
 """
+import pathlib
 import sys
-sys.path.append("/home/jsaavedr/Research/git/tensorflow-2/convnet2")
+sys.path.append(str(pathlib.Path().absolute()))
 import argparse
 import utils.configuration as conf
 import utils.imgproc as imgproc

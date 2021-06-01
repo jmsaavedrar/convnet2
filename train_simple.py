@@ -3,17 +3,15 @@ jsaavedr, 2020
 
 This is a simple version of train.py. 
 
-Before using this program, set the path where the folder "convnet2" can be located.
 To use train.py, you will require to set the following parameters :
- * -config : A configuration file where a set of parameters for data construction and trainig is defined.
- * -name: A section name in the configuration file.
+ * -config : A configuration file where a set of parameters for data construction and training is defined.
+ * -name: The section name in the configuration file.
  * -mode: [train, test] for training, testing, or showing  variables of the current model. By default this is set to 'train'
  * -save: Set true for saving the model
 """
-
+import pathlib
 import sys
-#modify the following line according to the locations where convnet2 is located
-sys.path.append("/home/jsaavedr/Research/git/tensorflow-2/convnet2")
+sys.path.append(str(pathlib.Path().absolute()))
 import tensorflow as tf
 from models import simple
 from models import alexnet
@@ -66,8 +64,9 @@ if __name__ == '__main__' :
         val_dataset = val_dataset.batch(batch_size = configuration.get_batch_size())
                         
        
-    #Defining callback for saving checkpoints
-    #save_freq: frequency in terms of number steps each time checkpoint is saved 
+    #Defining a callback for saving checkpoints
+    #save_freq: frequency in terms of number steps each time checkpoint is saved
+    #here, we define save_freq equal to an epoch 
     model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
         filepath=os.path.join(configuration.get_snapshot_dir(), '{epoch:03d}.h5'),
         save_weights_only=True,
@@ -75,8 +74,7 @@ if __name__ == '__main__' :
         monitor='val_acc',
         save_freq = 'epoch',            
         )
-    #save_freq = configuration.get_snapshot_steps())        
-    #resnet 34        
+    #save_freq = configuration.get_snapshot_steps())                
     if configuration.get_model_name() == 'SKETCH' :
         model = alexnet.AlexNetModel(configuration.get_number_of_classes())            
         process_fun = imgproc.process_sketch
@@ -86,8 +84,7 @@ if __name__ == '__main__' :
             
     #resnet_50
     #model = resnet.ResNet([3,4,6,3],[64,128,256,512], configuration.get_number_of_classes(), use_bottleneck = True)
-    #build the model indicating the input shape
-    #define the model input    
+    #build the model indicating the input shape    
     input_image = tf.keras.Input((input_shape[0], input_shape[1], input_shape[2]), name = 'input_image')     
     model(input_image)    
     model.summary()
@@ -125,7 +122,6 @@ if __name__ == '__main__' :
             pred = np.exp(pred - max(pred))
             pred = pred / np.sum(pred)            
             cla = np.argmax(pred)
-            #print(pred[cla])                                               
             print('{} [{}]'.format(cla, pred[cla]))
             filename = input('file :')
     #save the model   

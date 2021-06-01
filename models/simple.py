@@ -19,7 +19,7 @@ class SimpleModel(tf.keras.Model):
         self.bn_fc_1 = tf.keras.layers.BatchNormalization()
         self.fc2 = tf.keras.layers.Dense(number_of_classes)
 
-    # here the architecture is defined
+    # here, connecting the modules
     def call(self, inputs):
         # input  # [B, 31,31, 1]  # [B, H, W, C]
         #first block

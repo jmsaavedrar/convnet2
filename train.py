@@ -1,18 +1,17 @@
 """
 jsaavedr, 2020
-This allows you to train and test your model
 
-Before using this program, set the path where the folder "covnet2"  is stored.
-To use train.py, you will require to send the following parameters :
- * -config : A configuration file where a set of parameters for data construction and trainig is set.
- * -name: A section name in the configuration file.
+This is a simple version of train.py. 
+
+To use train.py, you will require to set the following parameters :
+ * -config : A configuration file where a set of parameters for data construction and training is defined.
+ * -name: The section name in the configuration file.
  * -mode: [train, test] for training, testing, or showing  variables of the current model. By default this is set to 'train'
  * -save: Set true for saving the model
 """
-
+import pathlib
 import sys
-#set the convnet2 path
-sys.path.append("/home/jsaavedr/Research/git/tensorflow-2/convnet2")
+sys.path.append(str(pathlib.Path().absolute()))
 import tensorflow as tf
 from models import resnet
 import datasets.data as data
@@ -56,7 +55,7 @@ if __name__ == '__main__' :
         tr_dataset = tr_dataset.shuffle(configuration.get_shuffle_size())
         tr_dataset = tr_dataset.map(lambda x : data.parser_tfrecord(x, input_shape, mean_image, number_of_classes, with_augmentation = True));        
         tr_dataset = tr_dataset.batch(batch_size = configuration.get_batch_size())    
-        #tr_dataset = tr_dataset.repeat()
+        
 
     if pargs.mode == 'train' or  pargs.mode == 'test':
         val_dataset = tf.data.TFRecordDataset(tfr_test_file)
