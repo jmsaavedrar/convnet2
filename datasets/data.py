@@ -305,3 +305,4 @@ def parser_tfrecord_siamese(serialized_input, input_shape, mean_image,  with_aug
         label = tf.cast(features['label'], tf.int32)                
         return image, label
     
+    

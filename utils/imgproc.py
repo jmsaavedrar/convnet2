@@ -165,6 +165,11 @@ def process_image(image, output_size):
     image = resize_image_keeping_aspect(image, output_size)
     return image    
 
+def process_image_visual_attribute(image, output_size):
+    image = image_crop_rgb(image, (255,255,255), padding = 0)
+    image = resize_image_keeping_aspect(image, output_size)
+    return image
+
 def create_processing_function(imgproc_params):
     keep_aspect_ratio = imgproc_params['keep_aspect_ratio']
     padding_value = imgproc_params['padding_value']

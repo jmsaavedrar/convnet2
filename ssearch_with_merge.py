@@ -87,7 +87,7 @@ class SSearchMerge :
         return fv        
     
     def normalize(self, data) :
-        norm = np.sum(np.square(data), axis = 1)
+        norm = np.sqrt(np.sum(np.square(data), axis = 1))
         norm = np.expand_dims(norm, 0)        
         data = data / np.transpose(norm)
         return data

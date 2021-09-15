@@ -29,7 +29,7 @@ class SSearch :
         model(input_image)    
         model.summary()
         model.load_weights(self.configuration.get_checkpoint_file(), by_name = True, skip_mismatch = True)
-        #create the sim-model with a customized layer 
+        #create the sim-model with a customized layer    
         #you can change output_layer_name                
         output_layer_name = 'global_average_pooling2d'
         output = model.get_layer(output_layer_name).output                
@@ -78,7 +78,7 @@ class SSearch :
         return fv
     
     def normalize(self, data) :
-        norm = np.sum(np.square(data), axis = 1)
+        norm = np.sqrt(np.sum(np.square(data), axis = 1))
         norm = np.expand_dims(norm, 0)        
         data = data / np.transpose(norm)
         return data
